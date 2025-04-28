@@ -361,28 +361,49 @@ class GameScene extends Phaser.Scene {
             return;
         }
 
-        // Always spawn from the top
-        let x, y;
+        // Determine how many enemies to spawn based on player power
+        let enemyCount = 1; // Default is 1 enemy
 
-        // Random x position along the top
-        x = Phaser.Math.Between(50, 750);
-        y = -50; // Just above the top of the screen
+        // If player exists, check their weapon level and score
+        if (this.player) {
+            // Increase enemy count based on weapon level
+            if (this.player.weaponLevel >= 3) {
+                enemyCount = 3; // Spawn 3 enemies when player has max weapon
+            } else if (this.player.weaponLevel >= 2) {
+                enemyCount = 2; // Spawn 2 enemies for level 2 weapon
+            }
 
-        // Choose enemy type (now includes type 3, which was previously a boss)
-        const enemyType = Phaser.Math.Between(1, 3);
-        const enemyKey = `enemy${enemyType === 3 ? 2 : enemyType}`; // Use enemy2 texture for type 3
-
-        // Create enemy
-        const enemy = new Enemy(this, x, y, enemyKey, enemyType);
-
-        // If it's a type 3 enemy (former boss), make it a bit stronger
-        if (enemyType === 3) {
-            enemy.health = 5;
-            enemy.setScale(0.6); // Larger than regular enemies but smaller than boss
-            enemy.setTint(0xff8800); // Orange tint to distinguish from regular enemies
+            // Further increase based on score
+            if (this.score > 500) {
+                enemyCount += 1; // Add one more enemy when score is high
+            }
         }
 
-        this.enemies.add(enemy);
+        // Spawn multiple enemies
+        for (let i = 0; i < enemyCount; i++) {
+            // Always spawn from the top
+            let x, y;
+
+            // Random x position along the top
+            x = Phaser.Math.Between(50, 750);
+            y = -50; // Just above the top of the screen
+
+            // Choose enemy type (now includes type 3, which was previously a boss)
+            const enemyType = Phaser.Math.Between(1, 3);
+            const enemyKey = `enemy${enemyType === 3 ? 2 : enemyType}`; // Use enemy2 texture for type 3
+
+            // Create enemy
+            const enemy = new Enemy(this, x, y, enemyKey, enemyType);
+
+            // If it's a type 3 enemy (former boss), make it a bit stronger
+            if (enemyType === 3) {
+                enemy.health = 5;
+                enemy.setScale(0.6); // Larger than regular enemies but smaller than boss
+                enemy.setTint(0xff8800); // Orange tint to distinguish from regular enemies
+            }
+
+            this.enemies.add(enemy);
+        }
     }
 
     spawnBoss() {
