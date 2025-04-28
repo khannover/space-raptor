@@ -166,62 +166,76 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         const explosionTypes = ['explosion', 'explosion-2', 'explosion-3'];
         const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
 
-        // Use the GameScene's createExplosion method
-        this.scene.createExplosion(this.x, this.y, 0.7, randomType);
+        // Use the GameScene's createExplosion method if scene exists
+        if (this.scene && typeof this.scene.createExplosion === 'function') {
+            this.scene.createExplosion(this.x, this.y, 0.7, randomType);
+        }
 
         // Check if dead
         if (this.health <= 0) {
             // Play explosion sound
-            if (this.scene.sound.get('explosion')) {
-                this.scene.sound.play('explosion', { volume: 0.3 });
-            } else {
-                console.warn('Explosion sound not loaded properly');
+            if (this.scene && this.scene.sound && typeof this.scene.sound.get === 'function') {
+                if (this.scene.sound.get('explosion')) {
+                    this.scene.sound.play('explosion', { volume: 0.3 });
+                } else {
+                    console.warn('Explosion sound not loaded properly');
+                }
             }
 
-            // Store reference to position before destruction
+            // Store reference to position and scene before destruction
             const enemyX = this.x;
             const enemyY = this.y;
             const enemyWidth = this.width;
             const enemyHeight = this.height;
+            const sceneRef = this.scene;
 
             // Create a main explosion using the enhanced system
             // Randomly select explosion type
             const explosionTypes = ['explosion', 'explosion-2', 'explosion-3'];
             const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
 
-            // Create main explosion
-            this.scene.createExplosion(enemyX, enemyY, 1.2, randomType);
+            // Create main explosion if scene exists
+            if (sceneRef && typeof sceneRef.createExplosion === 'function') {
+                sceneRef.createExplosion(enemyX, enemyY, 1.2, randomType);
+            }
 
-            // Always add smoke for the main explosion
-            this.scene.createSmokeEffect(enemyX, enemyY, 1.5);
+            // Always add smoke for the main explosion if scene exists
+            if (sceneRef && typeof sceneRef.createSmokeEffect === 'function') {
+                sceneRef.createSmokeEffect(enemyX, enemyY, 1.5);
+            }
 
             // Create secondary explosions with slight delay for a more dramatic effect
-            for (let i = 0; i < 3; i++) {
-                this.scene.time.delayedCall(Phaser.Math.Between(50, 150), () => {
-                    // Random position within the enemy's last known position
-                    const offsetX = Phaser.Math.Between(-enemyWidth/3, enemyWidth/3);
-                    const offsetY = Phaser.Math.Between(-enemyHeight/3, enemyHeight/3);
+            // Only proceed if scene reference exists
+            if (sceneRef && sceneRef.time && typeof sceneRef.time.delayedCall === 'function') {
+                for (let i = 0; i < 3; i++) {
+                    sceneRef.time.delayedCall(Phaser.Math.Between(50, 150), () => {
+                        // Random position within the enemy's last known position
+                        const offsetX = Phaser.Math.Between(-enemyWidth/3, enemyWidth/3);
+                        const offsetY = Phaser.Math.Between(-enemyHeight/3, enemyHeight/3);
 
-                    // Randomly select explosion type
-                    const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
+                        // Randomly select explosion type
+                        const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
 
-                    // Create secondary explosion
-                    this.scene.createExplosion(
-                        enemyX + offsetX,
-                        enemyY + offsetY,
-                        Phaser.Math.FloatBetween(0.6, 0.9),
-                        randomType
-                    );
+                        // Create secondary explosion if scene still exists
+                        if (sceneRef && typeof sceneRef.createExplosion === 'function') {
+                            sceneRef.createExplosion(
+                                enemyX + offsetX,
+                                enemyY + offsetY,
+                                Phaser.Math.FloatBetween(0.6, 0.9),
+                                randomType
+                            );
+                        }
 
-                    // Randomly add smoke effects
-                    if (Phaser.Math.Between(0, 10) > 6) {
-                        this.scene.createSmokeEffect(
-                            enemyX + offsetX,
-                            enemyY + offsetY,
-                            Phaser.Math.FloatBetween(0.7, 1.0)
-                        );
-                    }
-                });
+                        // Randomly add smoke effects if scene still exists
+                        if (Phaser.Math.Between(0, 10) > 6 && sceneRef && typeof sceneRef.createSmokeEffect === 'function') {
+                            sceneRef.createSmokeEffect(
+                                enemyX + offsetX,
+                                enemyY + offsetY,
+                                Phaser.Math.FloatBetween(0.7, 1.0)
+                            );
+                        }
+                    });
+                }
             }
 
             // Destroy enemy
