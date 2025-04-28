@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Smoke layers -->
+  <defs>
+    <radialGradient id="smokeGradient1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#eeeeee;stop-opacity:0.9" />
+      <stop offset="60%" style="stop-color:#999999;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#666666;stop-opacity:0" />
+    </radialGradient>
+    
+    <radialGradient id="smokeGradient2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#cccccc;stop-opacity:0.8" />
+      <stop offset="70%" style="stop-color:#888888;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#555555;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Smoke cloud with irregular shape -->
+  <path d="M50,50 
+           C60,40 70,45 75,35 
+           C80,25 70,15 60,20 
+           C50,10 35,15 30,25 
+           C20,20 10,30 15,40 
+           C10,50 20,60 30,55 
+           C35,65 50,70 60,60 
+           C70,65 80,55 75,45 
+           C65,40 60,50 50,50" 
+        fill="url(#smokeGradient1)">
+    <animate attributeName="opacity" values="0.8;0" dur="1.5s" repeatCount="1" />
+    <animateTransform attributeName="transform" type="scale" from="0.2" to="1.2" dur="1.5s" repeatCount="1" additive="sum" />
+  </path>
+  
+  <!-- Smaller smoke puffs -->
+  <g>
+    <!-- Puff 1 -->
+    <ellipse cx="40" cy="35" rx="10" ry="8" fill="url(#smokeGradient2)">
+      <animate attributeName="rx" values="0;10" dur="0.7s" repeatCount="1" />
+      <animate attributeName="ry" values="0;8" dur="0.7s" repeatCount="1" />
+      <animate attributeName="opacity" values="0.7;0" dur="1.2s" repeatCount="1" />
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="-10,-15" dur="1.2s" repeatCount="1" additive="sum" />
+    </ellipse>
+    
+    <!-- Puff 2 -->
+    <ellipse cx="60" cy="35" rx="8" ry="10" fill="url(#smokeGradient2)">
+      <animate attributeName="rx" values="0;8" dur="0.8s" repeatCount="1" />
+      <animate attributeName="ry" values="0;10" dur="0.8s" repeatCount="1" />
+      <animate attributeName="opacity" values="0.7;0" dur="1.3s" repeatCount="1" />
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="15,-20" dur="1.3s" repeatCount="1" additive="sum" />
+    </ellipse>
+    
+    <!-- Puff 3 -->
+    <ellipse cx="35" cy="60" rx="12" ry="9" fill="url(#smokeGradient2)">
+      <animate attributeName="rx" values="0;12" dur="0.9s" repeatCount="1" />
+      <animate attributeName="ry" values="0;9" dur="0.9s" repeatCount="1" />
+      <animate attributeName="opacity" values="0.7;0" dur="1.4s" repeatCount="1" />
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="-15,10" dur="1.4s" repeatCount="1" additive="sum" />
+    </ellipse>
+    
+    <!-- Puff 4 -->
+    <ellipse cx="65" cy="60" rx="9" ry="12" fill="url(#smokeGradient2)">
+      <animate attributeName="rx" values="0;9" dur="0.75s" repeatCount="1" />
+      <animate attributeName="ry" values="0;12" dur="0.75s" repeatCount="1" />
+      <animate attributeName="opacity" values="0.7;0" dur="1.25s" repeatCount="1" />
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="20,5" dur="1.25s" repeatCount="1" additive="sum" />
+    </ellipse>
+    
+    <!-- Central rising puff -->
+    <ellipse cx="50" cy="50" rx="15" ry="20" fill="url(#smokeGradient2)">
+      <animate attributeName="rx" values="0;15" dur="1s" repeatCount="1" />
+      <animate attributeName="ry" values="0;20" dur="1s" repeatCount="1" />
+      <animate attributeName="opacity" values="0.8;0" dur="1.5s" repeatCount="1" />
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="0,-25" dur="1.5s" repeatCount="1" additive="sum" />
+    </ellipse>
+  </g>
+</svg>

@@ -161,24 +161,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.clearTint();
         });
 
-        // Create small explosion effect for hit
-        const smallExplosion = this.scene.add.image(this.x, this.y, 'explosion');
-        smallExplosion.setScale(0.7); // Increased size for better visibility
-        smallExplosion.setAlpha(0.9); // Less transparent for better visibility
-        smallExplosion.setDepth(10); // Put in front of enemies (enemy depth is 5)
+        // Create small explosion effect for hit using the enhanced system
+        // Randomly select explosion type for variety
+        const explosionTypes = ['explosion', 'explosion-2', 'explosion-3'];
+        const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
 
-        // Add rotation and scaling animation for more appeal
-        this.scene.tweens.add({
-            targets: smallExplosion,
-            angle: Phaser.Math.Between(-180, 180), // Random rotation
-            scale: { from: 0.4, to: 0.8 }, // Start smaller, grow larger
-            alpha: 0,
-            duration: 400, // Slightly longer duration for better visibility
-            ease: 'Power2',
-            onComplete: () => {
-                smallExplosion.destroy();
-            }
-        });
+        // Use the GameScene's createExplosion method
+        this.scene.createExplosion(this.x, this.y, 0.7, randomType);
 
         // Check if dead
         if (this.health <= 0) {
@@ -189,47 +178,48 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 console.warn('Explosion sound not loaded properly');
             }
 
-            // Create explosion
-            const explosion = this.scene.add.image(this.x, this.y, 'explosion');
-            explosion.setScale(1);
-            explosion.setDepth(10); // Put in front of enemies (enemy depth is 5)
+            // Store reference to position before destruction
+            const enemyX = this.x;
+            const enemyY = this.y;
+            const enemyWidth = this.width;
+            const enemyHeight = this.height;
 
-            // Add multiple animations for a more appealing effect
-            // 1. Rotation and scaling animation
-            this.scene.tweens.add({
-                targets: explosion,
-                angle: Phaser.Math.Between(-90, 90), // Random rotation
-                scale: { from: 0.5, to: 1.2 }, // Start smaller, grow larger
-                alpha: { from: 1, to: 0 },
-                duration: 600,
-                ease: 'Power2',
-                onComplete: () => {
-                    explosion.destroy();
-                }
-            });
+            // Create a main explosion using the enhanced system
+            // Randomly select explosion type
+            const explosionTypes = ['explosion', 'explosion-2', 'explosion-3'];
+            const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
 
-            // 2. Create additional particle effects
-            for (let i = 0; i < 6; i++) {
-                const particle = this.scene.add.image(this.x, this.y, 'explosion');
-                particle.setScale(0.3);
-                particle.setAlpha(0.7);
-                particle.setDepth(9); // Slightly behind the main explosion
+            // Create main explosion
+            this.scene.createExplosion(enemyX, enemyY, 1.2, randomType);
 
-                // Random direction for particles
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Phaser.Math.Between(20, 50);
+            // Always add smoke for the main explosion
+            this.scene.createSmokeEffect(enemyX, enemyY, 1.5);
 
-                this.scene.tweens.add({
-                    targets: particle,
-                    x: this.x + Math.cos(angle) * distance,
-                    y: this.y + Math.sin(angle) * distance,
-                    angle: Phaser.Math.Between(-180, 180),
-                    scale: { from: 0.3, to: 0.1 },
-                    alpha: 0,
-                    duration: Phaser.Math.Between(300, 500),
-                    ease: 'Power2',
-                    onComplete: () => {
-                        particle.destroy();
+            // Create secondary explosions with slight delay for a more dramatic effect
+            for (let i = 0; i < 3; i++) {
+                this.scene.time.delayedCall(Phaser.Math.Between(50, 150), () => {
+                    // Random position within the enemy's last known position
+                    const offsetX = Phaser.Math.Between(-enemyWidth/3, enemyWidth/3);
+                    const offsetY = Phaser.Math.Between(-enemyHeight/3, enemyHeight/3);
+
+                    // Randomly select explosion type
+                    const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
+
+                    // Create secondary explosion
+                    this.scene.createExplosion(
+                        enemyX + offsetX,
+                        enemyY + offsetY,
+                        Phaser.Math.FloatBetween(0.6, 0.9),
+                        randomType
+                    );
+
+                    // Randomly add smoke effects
+                    if (Phaser.Math.Between(0, 10) > 6) {
+                        this.scene.createSmokeEffect(
+                            enemyX + offsetX,
+                            enemyY + offsetY,
+                            Phaser.Math.FloatBetween(0.7, 1.0)
+                        );
                     }
                 });
             }

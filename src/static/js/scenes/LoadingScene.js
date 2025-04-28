@@ -56,8 +56,12 @@ class LoadingScene extends Phaser.Scene {
         // Load background
         this.load.svg('background', '/static/assets/images/background.svg');
 
-        // Load explosion
+        // Load explosions and smoke effects
         this.load.svg('explosion', '/static/assets/images/explosion.svg');
+        this.load.svg('explosion-2', '/static/assets/images/explosion-2.svg');
+        this.load.svg('explosion-3', '/static/assets/images/explosion-3.svg');
+        this.load.svg('smoke-1', '/static/assets/images/smoke-1.svg');
+        this.load.svg('smoke-2', '/static/assets/images/smoke-2.svg');
 
         // Load sounds
         this.load.audio('shoot', '/static/assets/sounds/shoot.mp3');

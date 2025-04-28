@@ -537,9 +537,13 @@ class GameScene extends Phaser.Scene {
         this.healthText.setText(`Health: ${this.player.health}/${maxHealth}`);
     }
 
-    createExplosion(x, y, scale = 1) {
+    createExplosion(x, y, scale = 1, forceType = null) {
+        // Randomly select explosion type or use forced type
+        const explosionTypes = ['explosion', 'explosion-2', 'explosion-3'];
+        const explosionType = forceType || explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
+
         // Create explosion at specified position
-        const explosion = this.add.image(x, y, 'explosion');
+        const explosion = this.add.image(x, y, explosionType);
         explosion.setScale(scale);
         explosion.setDepth(20); // Ensure it's in front of everything
 
@@ -556,7 +560,41 @@ class GameScene extends Phaser.Scene {
             }
         });
 
+        // Randomly add smoke effect
+        if (Phaser.Math.Between(0, 10) > 5) {
+            this.createSmokeEffect(x, y, scale);
+        }
+
         return explosion;
+    }
+
+    createSmokeEffect(x, y, scale = 1) {
+        // Randomly select smoke type
+        const smokeType = Phaser.Math.Between(0, 1) === 0 ? 'smoke-1' : 'smoke-2';
+
+        // Create smoke at specified position with slight offset
+        const offsetX = Phaser.Math.Between(-10, 10);
+        const offsetY = Phaser.Math.Between(-10, 10);
+        const smoke = this.add.image(x + offsetX, y + offsetY, smokeType);
+
+        // Set scale and depth (slightly behind explosion)
+        smoke.setScale(scale * 1.2); // Smoke is slightly larger
+        smoke.setDepth(19); // Behind explosion but in front of other elements
+
+        // Add animation
+        this.tweens.add({
+            targets: smoke,
+            angle: Phaser.Math.Between(-30, 30), // Slight rotation
+            scale: { from: scale * 0.8, to: scale * 2 }, // Grow larger
+            alpha: { from: 0.8, to: 0 }, // Fade out
+            duration: 1200, // Longer duration than explosion
+            ease: 'Power1',
+            onComplete: () => {
+                smoke.destroy();
+            }
+        });
+
+        return smoke;
     }
 
     gameOver() {
@@ -571,28 +609,56 @@ class GameScene extends Phaser.Scene {
             console.warn('Explosion sound not loaded properly');
         }
 
-        // Create explosion at player position
-        const explosion = this.createExplosion(this.player.x, this.player.y, 2);
+        // Create main explosion at player position
+        const mainExplosion = this.createExplosion(this.player.x, this.player.y, 2);
+
+        // Always create smoke for the main explosion
+        this.createSmokeEffect(this.player.x, this.player.y, 2.5);
+
+        // Create secondary explosions with slight delay for a more dramatic effect
+        for (let i = 0; i < 3; i++) {
+            this.time.delayedCall(Phaser.Math.Between(100, 300), () => {
+                // Random offset from player position
+                const offsetX = Phaser.Math.Between(-30, 30);
+                const offsetY = Phaser.Math.Between(-30, 30);
+
+                // Create secondary explosion with random type
+                const explosionTypes = ['explosion', 'explosion-2', 'explosion-3'];
+                const randomType = explosionTypes[Phaser.Math.Between(0, explosionTypes.length - 1)];
+
+                this.createExplosion(
+                    this.player.x + offsetX, 
+                    this.player.y + offsetY, 
+                    Phaser.Math.FloatBetween(1.0, 1.5),
+                    randomType
+                );
+            });
+        }
 
         // Create additional particle effects for a more dramatic player explosion
-        for (let i = 0; i < 10; i++) {
-            const particle = this.add.image(this.player.x, this.player.y, 'explosion');
-            particle.setScale(0.5);
+        for (let i = 0; i < 12; i++) {
+            // Randomly select explosion or smoke for particles
+            const particleType = Phaser.Math.Between(0, 10) > 7 ? 
+                ['smoke-1', 'smoke-2'][Phaser.Math.Between(0, 1)] : 
+                ['explosion', 'explosion-2', 'explosion-3'][Phaser.Math.Between(0, 2)];
+
+            const particle = this.add.image(this.player.x, this.player.y, particleType);
+            particle.setScale(0.4);
             particle.setAlpha(0.8);
             particle.setDepth(19); // Slightly behind the main explosion
 
             // Random direction for particles
             const angle = Math.random() * Math.PI * 2;
-            const distance = Phaser.Math.Between(30, 80);
+            const distance = Phaser.Math.Between(40, 100);
 
             this.tweens.add({
                 targets: particle,
                 x: this.player.x + Math.cos(angle) * distance,
                 y: this.player.y + Math.sin(angle) * distance,
                 angle: Phaser.Math.Between(-180, 180),
-                scale: { from: 0.5, to: 0.2 },
+                scale: { from: 0.4, to: 0.2 },
                 alpha: 0,
-                duration: Phaser.Math.Between(600, 900),
+                duration: Phaser.Math.Between(600, 1200),
                 ease: 'Power2',
                 onComplete: () => {
                     particle.destroy();
