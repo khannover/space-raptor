@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+  <!-- Main body -->
+  <path d="M50 10 L30 90 L50 80 L70 90 L50 10" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+  
+  <!-- Wings -->
+  <path d="M30 60 L10 90 L30 80 L30 60" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+  <path d="M70 60 L90 90 L70 80 L70 60" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+  
+  <!-- Cockpit -->
+  <ellipse cx="50" cy="40" rx="10" ry="15" fill="#f1c40f" stroke="#f39c12" stroke-width="2"/>
+  
+  <!-- Engine glow -->
+  <ellipse cx="50" cy="85" rx="5" ry="10" fill="#9b59b6" stroke="#8e44ad" stroke-width="1">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="0.5s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- Weapon mounts -->
+  <rect x="25" y="50" width="5" height="10" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  <rect x="70" y="50" width="5" height="10" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+</svg>

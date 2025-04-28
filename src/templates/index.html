@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raptor: Call of the Shadows Clone</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        #game-container {
+            width: 800px;
+            height: 600px;
+            position: relative;
+        }
+
+        .loading-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="loading-text">Loading game...</div>
+    </div>
+
+    <!-- Phaser Library -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+    <!-- Game Scenes -->
+    <script src="{{ url_for('static', path='js/scenes/BootScene.js') }}"></script>
+    <script src="{{ url_for('static', path='js/scenes/LoadingScene.js') }}"></script>
+    <script src="{{ url_for('static', path='js/scenes/GameScene.js') }}"></script>
+    <script src="{{ url_for('static', path='js/scenes/GameOverScene.js') }}"></script>
+
+    <!-- Game Entities -->
+    <script src="{{ url_for('static', path='js/entities/Player.js') }}"></script>
+    <script src="{{ url_for('static', path='js/entities/Enemy.js') }}"></script>
+    <script src="{{ url_for('static', path='js/entities/Bullet.js') }}"></script>
+    <script src="{{ url_for('static', path='js/entities/Background.js') }}"></script>
+
+    <!-- Game Configuration -->
+    <script src="{{ url_for('static', path='js/config.js') }}"></script>
+
+    <!-- Main Game Script -->
+    <script src="{{ url_for('static', path='js/game.js') }}"></script>
+</body>
+</html>

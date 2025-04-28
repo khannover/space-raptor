@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 40">
+  <!-- Bullet body -->
+  <rect x="6" y="5" width="8" height="30" rx="4" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+  
+  <!-- Bullet tip -->
+  <circle cx="10" cy="5" r="4" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+  
+  <!-- Bullet trail -->
+  <path d="M10 35 L7 40 L13 40 L10 35" fill="#f39c12" stroke="#e67e22" stroke-width="1"/>
+  
+  <!-- Glow effect -->
+  <circle cx="10" cy="20" r="8" fill="#e74c3c" opacity="0.3">
+    <animate attributeName="opacity" values="0.1;0.3;0.1" dur="0.3s" repeatCount="indefinite"/>
+  </circle>
+</svg>
