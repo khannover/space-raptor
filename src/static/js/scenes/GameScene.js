@@ -14,11 +14,12 @@ class GameScene extends Phaser.Scene {
         // Game settings
         this.enemySpawnTime = 2000; // ms between enemy spawns
         this.powerupSpawnTime = 10000; // ms between powerup spawns
-        this.bossSpawnTime = 30000; // ms between boss spawns
-        this.bossSpawnScore = 200; // Score threshold for first boss
+        this.bossSpawnTime = 60000; // ms between boss spawns (increased to make bosses rarer)
+        this.bossSpawnScore = 300; // Score threshold for first boss (increased to make bosses rarer)
         this.nextBossSpawn = this.bossSpawnScore; // Score at which next boss will spawn
         this.score = 0;
         this.isGameOver = false;
+        this.superBossActive = false; // Flag to track if a super boss is active
     }
 
     create() {
@@ -26,6 +27,7 @@ class GameScene extends Phaser.Scene {
         this.isGameOver = false;
         this.score = 0;
         this.nextBossSpawn = this.bossSpawnScore;
+        this.superBossActive = false;
 
         // Create scrolling background
         this.background = new Background(this, 0, 0, 'background');
@@ -354,6 +356,11 @@ class GameScene extends Phaser.Scene {
     }
 
     spawnEnemy() {
+        // Don't spawn enemies if a boss or super boss is active
+        if (this.bosses.getChildren().length > 0 || this.superBossActive) {
+            return;
+        }
+
         // Always spawn from the top
         let x, y;
 
@@ -361,12 +368,20 @@ class GameScene extends Phaser.Scene {
         x = Phaser.Math.Between(50, 750);
         y = -50; // Just above the top of the screen
 
-        // Choose enemy type
-        const enemyType = Phaser.Math.Between(1, 2);
-        const enemyKey = `enemy${enemyType}`;
+        // Choose enemy type (now includes type 3, which was previously a boss)
+        const enemyType = Phaser.Math.Between(1, 3);
+        const enemyKey = `enemy${enemyType === 3 ? 2 : enemyType}`; // Use enemy2 texture for type 3
 
         // Create enemy
         const enemy = new Enemy(this, x, y, enemyKey, enemyType);
+
+        // If it's a type 3 enemy (former boss), make it a bit stronger
+        if (enemyType === 3) {
+            enemy.health = 5;
+            enemy.setScale(0.6); // Larger than regular enemies but smaller than boss
+            enemy.setTint(0xff8800); // Orange tint to distinguish from regular enemies
+        }
+
         this.enemies.add(enemy);
     }
 
@@ -375,15 +390,20 @@ class GameScene extends Phaser.Scene {
         const x = this.game.config.width / 2;
         const y = -100; // Higher up than regular enemies
 
-        // Create warning message
+        // Determine if this should be a super boss (rarer, more powerful)
+        // Higher chance of super boss as score increases
+        const superBossThreshold = Math.min(0.3, this.score / 2000); // Max 30% chance
+        const isSuperBoss = Math.random() < superBossThreshold;
+
+        // Create warning message with appropriate text
         const warningText = this.add.text(
             this.game.config.width / 2,
             this.game.config.height / 3,
-            'WARNING: BOSS APPROACHING',
+            isSuperBoss ? 'DANGER: SUPER BOSS APPROACHING' : 'WARNING: BOSS APPROACHING',
             {
-                fontSize: '32px',
+                fontSize: isSuperBoss ? '36px' : '32px',
                 fontStyle: 'bold',
-                fill: '#ff0000',
+                fill: isSuperBoss ? '#ff00ff' : '#ff0000', // Purple for super boss, red for regular boss
                 stroke: '#000000',
                 strokeThickness: 6
             }
@@ -397,7 +417,7 @@ class GameScene extends Phaser.Scene {
             alpha: { from: 1, to: 0 },
             duration: 500,
             yoyo: true,
-            repeat: 3,
+            repeat: isSuperBoss ? 5 : 3, // More flashes for super boss
             onComplete: () => {
                 warningText.destroy();
             }
@@ -405,28 +425,30 @@ class GameScene extends Phaser.Scene {
 
         // Play warning sound (reuse explosion sound)
         if (this.sound.get('explosion')) {
-            this.sound.play('explosion', { volume: 0.3 });
+            this.sound.play('explosion', { volume: isSuperBoss ? 0.5 : 0.3 });
         }
 
         // Delay the boss spawn to match the warning duration
-        this.time.delayedCall(2000, () => {
-            // Create boss
-            const boss = new Boss(this, x, y);
+        this.time.delayedCall(isSuperBoss ? 3000 : 2000, () => {
+            // Create boss or super boss
+            const boss = isSuperBoss 
+                ? new SuperBoss(this, x, y)
+                : new Boss(this, x, y);
             this.bosses.add(boss);
 
             // Create dramatic entrance effect
             const entranceEffect = this.add.image(x, y, 'explosion');
-            entranceEffect.setScale(1.5);
+            entranceEffect.setScale(isSuperBoss ? 2.0 : 1.5);
             entranceEffect.setAlpha(0.8);
-            entranceEffect.setTint(0xff0000); // Red tint
+            entranceEffect.setTint(isSuperBoss ? 0xff00ff : 0xff0000); // Purple for super boss, red for regular boss
             entranceEffect.setDepth(9); // Behind the boss
 
             // Add animation
             this.tweens.add({
                 targets: entranceEffect,
-                scale: 3,
+                scale: isSuperBoss ? 4 : 3,
                 alpha: 0,
-                duration: 1000,
+                duration: isSuperBoss ? 1500 : 1000,
                 ease: 'Power2',
                 onComplete: () => {
                     entranceEffect.destroy();
