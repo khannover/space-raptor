@@ -9,10 +9,14 @@ class GameScene extends Phaser.Scene {
         this.enemyBullets = null;
         this.background = null;
         this.powerups = null;
+        this.bosses = null;
 
         // Game settings
         this.enemySpawnTime = 2000; // ms between enemy spawns
         this.powerupSpawnTime = 10000; // ms between powerup spawns
+        this.bossSpawnTime = 30000; // ms between boss spawns
+        this.bossSpawnScore = 200; // Score threshold for first boss
+        this.nextBossSpawn = this.bossSpawnScore; // Score at which next boss will spawn
         this.score = 0;
         this.isGameOver = false;
     }
@@ -21,6 +25,7 @@ class GameScene extends Phaser.Scene {
         // Reset game state
         this.isGameOver = false;
         this.score = 0;
+        this.nextBossSpawn = this.bossSpawnScore;
 
         // Create scrolling background
         this.background = new Background(this, 0, 0, 'background');
@@ -30,6 +35,7 @@ class GameScene extends Phaser.Scene {
 
         // Create groups for enemies, bullets, and powerups
         this.enemies = this.physics.add.group();
+        this.bosses = this.physics.add.group();
         this.playerBullets = this.physics.add.group();
         this.enemyBullets = this.physics.add.group();
         this.powerups = this.physics.add.group();
@@ -37,9 +43,10 @@ class GameScene extends Phaser.Scene {
         // Set up collisions
         this.setupCollisions();
 
-        // Start enemy and powerup spawning
+        // Start enemy, powerup, and boss spawning
         this.startEnemySpawner();
         this.startPowerupSpawner();
+        this.startBossSpawner();
 
         // Add score text
         this.scoreText = this.add.text(16, 16, 'Score: 0', {
@@ -94,6 +101,11 @@ class GameScene extends Phaser.Scene {
             enemy.update(delta);
         });
 
+        // Update bosses
+        this.bosses.getChildren().forEach(boss => {
+            boss.update(delta);
+        });
+
         // Update player bullets
         this.playerBullets.getChildren().forEach(bullet => {
             bullet.update(delta);
@@ -108,6 +120,13 @@ class GameScene extends Phaser.Scene {
         this.powerups.getChildren().forEach(powerup => {
             powerup.update();
         });
+
+        // Check if it's time to spawn a boss based on score
+        if (this.score >= this.nextBossSpawn) {
+            this.spawnBoss();
+            // Increase the score threshold for the next boss
+            this.nextBossSpawn += this.bossSpawnScore;
+        }
     }
 
     setupCollisions() {
@@ -116,6 +135,15 @@ class GameScene extends Phaser.Scene {
             this.player,
             this.enemies,
             this.playerEnemyCollision,
+            null,
+            this
+        );
+
+        // Player collides with bosses
+        this.physics.add.overlap(
+            this.player,
+            this.bosses,
+            this.playerEnemyCollision, // Reuse the same collision handler
             null,
             this
         );
@@ -134,6 +162,15 @@ class GameScene extends Phaser.Scene {
             this.playerBullets,
             this.enemies,
             this.bulletEnemyCollision,
+            null,
+            this
+        );
+
+        // Player bullets collide with bosses
+        this.physics.add.overlap(
+            this.playerBullets,
+            this.bosses,
+            this.bulletEnemyCollision, // Reuse the same collision handler
             null,
             this
         );
@@ -222,6 +259,26 @@ class GameScene extends Phaser.Scene {
         });
     }
 
+    startBossSpawner() {
+        // Create a timer to spawn bosses
+        this.bossSpawner = this.time.addEvent({
+            delay: this.bossSpawnTime,
+            callback: this.checkBossSpawn,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    checkBossSpawn() {
+        // Only spawn a boss if there are no active bosses
+        if (this.bosses.getChildren().length === 0) {
+            // Don't spawn a boss if the player just started (score too low)
+            if (this.score >= this.bossSpawnScore / 2) {
+                this.spawnBoss();
+            }
+        }
+    }
+
     spawnPowerup() {
         // Random x position
         const x = Phaser.Math.Between(50, 750);
@@ -264,6 +321,71 @@ class GameScene extends Phaser.Scene {
         // Create enemy
         const enemy = new Enemy(this, x, y, enemyKey, enemyType);
         this.enemies.add(enemy);
+    }
+
+    spawnBoss() {
+        // Spawn boss in the middle top of the screen
+        const x = this.game.config.width / 2;
+        const y = -100; // Higher up than regular enemies
+
+        // Create warning message
+        const warningText = this.add.text(
+            this.game.config.width / 2,
+            this.game.config.height / 3,
+            'WARNING: BOSS APPROACHING',
+            {
+                fontSize: '32px',
+                fontStyle: 'bold',
+                fill: '#ff0000',
+                stroke: '#000000',
+                strokeThickness: 6
+            }
+        );
+        warningText.setOrigin(0.5);
+        warningText.setDepth(100);
+
+        // Flash the warning text
+        this.tweens.add({
+            targets: warningText,
+            alpha: { from: 1, to: 0 },
+            duration: 500,
+            yoyo: true,
+            repeat: 3,
+            onComplete: () => {
+                warningText.destroy();
+            }
+        });
+
+        // Play warning sound (reuse explosion sound)
+        if (this.sound.get('explosion')) {
+            this.sound.play('explosion', { volume: 0.3 });
+        }
+
+        // Delay the boss spawn to match the warning duration
+        this.time.delayedCall(2000, () => {
+            // Create boss
+            const boss = new Boss(this, x, y);
+            this.bosses.add(boss);
+
+            // Create dramatic entrance effect
+            const entranceEffect = this.add.image(x, y, 'explosion');
+            entranceEffect.setScale(1.5);
+            entranceEffect.setAlpha(0.8);
+            entranceEffect.setTint(0xff0000); // Red tint
+            entranceEffect.setDepth(9); // Behind the boss
+
+            // Add animation
+            this.tweens.add({
+                targets: entranceEffect,
+                scale: 3,
+                alpha: 0,
+                duration: 1000,
+                ease: 'Power2',
+                onComplete: () => {
+                    entranceEffect.destroy();
+                }
+            });
+        });
     }
 
     playerEnemyCollision(player, enemy) {
