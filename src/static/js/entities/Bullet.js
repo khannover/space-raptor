@@ -24,8 +24,11 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         };
 
         // Set rotation based on direction
-        if (this.direction.y > 0) {
-            this.setRotation(Math.PI); // Point down
+        if (this.direction.x !== 0 || this.direction.y !== 0) {
+            // Calculate angle from direction vector
+            const angle = Math.atan2(this.direction.y, this.direction.x);
+            // Add 90 degrees (PI/2) because sprite is oriented upward by default
+            this.setRotation(angle + Math.PI/2);
         }
 
         // Set smaller hitbox than the sprite
