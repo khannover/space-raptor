@@ -134,8 +134,12 @@ class GameScene extends Phaser.Scene {
 
         // Check if it's time to spawn a boss based on score
         if (this.score >= this.nextBossSpawn) {
-            this.spawnBoss();
-            // Increase the score threshold for the next boss
+            // Only spawn if there are fewer than two active bosses
+            if (this.bosses.getChildren().length < 2) {
+                this.spawnBoss();
+            }
+            // Increase the score threshold for the next boss regardless
+            // This ensures we don't keep trying to spawn at the same score
             this.nextBossSpawn += this.bossSpawnScore;
         }
     }
@@ -313,8 +317,8 @@ class GameScene extends Phaser.Scene {
     }
 
     checkBossSpawn() {
-        // Only spawn a boss if there are no active bosses
-        if (this.bosses.getChildren().length === 0) {
+        // Only spawn a boss if there are fewer than two active bosses
+        if (this.bosses.getChildren().length < 2) {
             // Don't spawn a boss if the player just started (score too low)
             if (this.score >= this.bossSpawnScore / 2) {
                 this.spawnBoss();
