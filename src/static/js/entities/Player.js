@@ -17,6 +17,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.health = 3; // Player can take multiple hits now
         this.maxHealth = 3;
 
+        // Auto-fire property
+        this.autoFire = true;
+
         // Upgrade properties
         this.weaponLevel = 0; // 0 = basic, 1-3 = upgraded
         this.hasShield = false;
@@ -40,6 +43,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             this.lastFired -= delta;
         }
 
+        // Auto-fire if enabled and cooldown has expired
+        if (this.autoFire && this.lastFired <= 0) {
+            this.shoot();
+        }
+
         // Handle shield duration
         if (this.hasShield && this.shieldDuration > 0) {
             this.shieldDuration -= delta;
@@ -59,6 +67,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             }
         }
+    }
+
+    toggleAutoFire() {
+        this.autoFire = !this.autoFire;
+        return this.autoFire; // Return the new state
     }
 
     shoot() {

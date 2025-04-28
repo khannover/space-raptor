@@ -33,6 +33,9 @@ class GameScene extends Phaser.Scene {
         // Create player
         this.player = new Player(this, 400, 500, 'player');
 
+        // Show auto-fire enabled message at game start
+        this.showAutoFireMessage(true);
+
         // Create groups for enemies, bullets, and powerups
         this.enemies = this.physics.add.group();
         this.bosses = this.physics.add.group();
@@ -81,6 +84,14 @@ class GameScene extends Phaser.Scene {
                 else if (pointer.button === 2 && this.player.hasBomb) {
                     this.player.useBomb();
                 }
+            }
+        });
+
+        // Add keyboard input for auto-fire toggle
+        this.input.keyboard.on('keydown-F', () => {
+            if (this.player && !this.isGameOver) {
+                const autoFireEnabled = this.player.toggleAutoFire();
+                this.showAutoFireMessage(autoFireEnabled);
             }
         });
     }
@@ -232,6 +243,38 @@ class GameScene extends Phaser.Scene {
             alpha: 0,
             y: 80,
             duration: type === 'bomb' ? 5000 : 2000, // Longer duration for bomb message
+            ease: 'Power2',
+            onComplete: () => {
+                messageText.destroy();
+            }
+        });
+    }
+
+    showAutoFireMessage(enabled) {
+        // Create message based on auto-fire state
+        const message = enabled ? 'Auto-Fire Enabled! (Press F to toggle)' : 'Auto-Fire Disabled! (Press F to toggle)';
+
+        // Create text
+        const messageText = this.add.text(
+            this.game.config.width / 2,
+            100,
+            message,
+            {
+                fontSize: '24px',
+                fill: enabled ? '#00ff00' : '#ffffff', // Green when enabled, white when disabled
+                stroke: '#000000',
+                strokeThickness: 4
+            }
+        );
+        messageText.setOrigin(0.5);
+        messageText.setDepth(100);
+
+        // Fade out and destroy
+        this.tweens.add({
+            targets: messageText,
+            alpha: 0,
+            y: 80,
+            duration: 2000,
             ease: 'Power2',
             onComplete: () => {
                 messageText.destroy();
