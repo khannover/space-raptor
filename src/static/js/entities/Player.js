@@ -193,7 +193,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
             // Play sound
             try {
-                this.scene.sound.play('shoot', { volume: 0.5 });
+                this.scene.sound.play('shoot', { volume: 0.10 });
             } catch (error) {
                 console.warn('Shoot sound not loaded properly:', error);
             }
