@@ -70,14 +70,14 @@ class LoadingScene extends Phaser.Scene {
     }
 
     create() {
-        // Add a slight delay before starting the game
+        // Add a slight delay before transitioning to start screen
         this.time.delayedCall(1000, () => {
             // Hide the loading text before transitioning
             this.loadingText.setVisible(false);
             this.loadingBarBg.setVisible(false);
             this.loadingBar.setVisible(false);
 
-            this.scene.start('GameScene');
+            this.scene.start('StartScene');
         });
     }
 }

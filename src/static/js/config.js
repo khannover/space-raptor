@@ -15,6 +15,7 @@ const config = {
     scene: [
         BootScene,
         LoadingScene,
+        StartScene,
         GameScene,
         GameOverScene
     ],
