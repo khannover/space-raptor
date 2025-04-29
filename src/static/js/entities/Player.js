@@ -25,7 +25,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.hasShield = false;
         this.shieldDuration = 0;
         this.shieldEffect = null;
-        this.hasBomb = false;
+        this.bombCount = 1; // Number of bombs (max 3)
 
         // Set up depth (z-index)
         this.setDepth(10);
@@ -230,11 +230,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     useBomb() {
-        // Check if player has a bomb
-        if (!this.hasBomb) return false;
+        // Check if player has at least one bomb
+        if (this.bombCount <= 0) return false;
 
         // Use the bomb
-        this.hasBomb = false;
+        this.bombCount--;
 
         // Create bomb explosion effect
         this.createBombExplosion();
@@ -256,6 +256,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.scene.scoreText) {
                 this.scene.scoreText.setText(`Score: ${this.scene.score}`);
             }
+        }
+
+        // Update bomb UI if it exists
+        if (this.scene.updateBombUI) {
+            this.scene.updateBombUI();
         }
 
         return true;

@@ -69,6 +69,9 @@ class GameScene extends Phaser.Scene {
         // Add health bar
         this.createHealthBar();
 
+        // Add bomb slots UI
+        this.createBombUI();
+
         // Start game music (only if not already playing)
         if (!this.musicPlaying) {
             try {
@@ -119,7 +122,7 @@ class GameScene extends Phaser.Scene {
                     this.player.shoot();
                 }
                 // Right click (button 2) for bomb
-                else if (pointer.button === 2 && this.player.hasBomb) {
+                else if (pointer.button === 2 && this.player.bombCount > 0) {
                     this.player.useBomb();
                 }
             }
@@ -260,7 +263,7 @@ class GameScene extends Phaser.Scene {
                 message = 'Shield Activated!';
                 break;
             case 'bomb':
-                message = 'Bomb Acquired! Right-click to use';
+                message = 'Bomb Acquired! Right-click to use (Max 3)';
                 break;
         }
 
@@ -601,6 +604,58 @@ class GameScene extends Phaser.Scene {
 
         // Update health text
         this.healthText.setText(`Health: ${this.player.health}/${maxHealth}`);
+    }
+
+    createBombUI() {
+        // Bomb UI container (positioned below health text)
+        this.bombUIContainer = this.add.container(16, 100);
+        this.bombUIContainer.setDepth(20);
+
+        // Bomb slots background
+        this.bombSlotsBackground = this.add.graphics();
+        this.bombSlotsBackground.fillStyle(0x333333, 1);
+        this.bombSlotsBackground.fillRect(0, 0, 100, 30);
+        this.bombUIContainer.add(this.bombSlotsBackground);
+
+        // Create bomb slots (3 slots)
+        this.bombSlots = [];
+        for (let i = 0; i < 3; i++) {
+            const slot = this.add.graphics();
+            slot.x = 10 + (i * 30);
+            slot.y = 5;
+            this.bombUIContainer.add(slot);
+            this.bombSlots.push(slot);
+        }
+
+        // Bomb text
+        this.bombText = this.add.text(0, 35, 'Bombs (Right-click to use)', {
+            fontSize: '16px',
+            fill: '#ffffff'
+        });
+        this.bombUIContainer.add(this.bombText);
+
+        // Initial update
+        this.updateBombUI();
+    }
+
+    updateBombUI() {
+        if (!this.player || !this.bombSlots) return;
+
+        // Update each bomb slot based on player's bomb count
+        for (let i = 0; i < this.bombSlots.length; i++) {
+            const slot = this.bombSlots[i];
+            slot.clear();
+
+            // Draw slot border
+            slot.lineStyle(1, 0xffffff, 0.8);
+            slot.strokeRect(0, 0, 20, 20);
+
+            // Fill slot if player has this bomb
+            if (i < this.player.bombCount) {
+                slot.fillStyle(0xff00ff, 0.8); // Purple for bombs
+                slot.fillRect(2, 2, 16, 16);
+            }
+        }
     }
 
     createExplosion(x, y, scale = 1, forceType = null) {
