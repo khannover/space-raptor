@@ -5,14 +5,18 @@ class SuperBoss extends Boss {
         // Make super boss larger than regular boss
         this.setScale(1.3); // 1.5x the size of regular boss (which is 0.8x the size of regular enemies)
 
-        // Super boss properties
-        this.health = 100; // Double the health of regular boss
-        this.speed = 60; // Slower but more menacing
-        this.fireRate = 800; // Faster firing rate than regular boss
+        // Base super boss properties (will be adjusted based on player's weapon level)
+        this.baseHealth = 100; // Double the health of regular boss
+        this.baseSpeed = 60; // Slower but more menacing
+        this.baseFireRate = 800; // Faster firing rate than regular boss
+        this.baseSpecialAttackCooldown = 2000; // Shorter cooldown for special attacks
         this.score = 250; // Worth more points
 
-        // Special attack properties
-        this.specialAttackCooldown = 2000; // Shorter cooldown for special attacks
+        // Set initial values
+        this.health = this.baseHealth;
+        this.speed = this.baseSpeed;
+        this.fireRate = this.baseFireRate;
+        this.specialAttackCooldown = this.baseSpecialAttackCooldown;
 
         // Set a distinctive tint to make the super boss stand out
         this.setTint(0xff00ff); // Purple tint
@@ -36,6 +40,9 @@ class SuperBoss extends Boss {
     }
 
     update(delta) {
+        // Adjust difficulty based on player's weapon level
+        this.adjustSuperBossDifficultyBasedOnPlayerWeapon();
+
         // Move based on super boss pattern
         if (this.pattern === 5) {
             // Modified figure-8 pattern with more aggressive movement
@@ -80,9 +87,44 @@ class SuperBoss extends Boss {
         }
     }
 
+    adjustSuperBossDifficultyBasedOnPlayerWeapon() {
+        // Get player from scene
+        const player = this.scene.player;
+
+        // Only proceed if player exists
+        if (player) {
+            const weaponLevel = player.weaponLevel;
+
+            // Adjust speed based on weapon level (up to 30% faster at max weapon level)
+            const speedMultiplier = 1 + (weaponLevel * 0.10); // 10% increase per weapon level
+            this.speed = this.baseSpeed * speedMultiplier;
+
+            // Adjust fire rate based on weapon level (up to 40% faster shooting at max weapon level)
+            const fireRateMultiplier = 1 - (weaponLevel * 0.10); // 10% decrease per weapon level (faster shooting)
+            this.fireRate = Math.max(this.baseFireRate * fireRateMultiplier, this.baseFireRate * 0.6); // Cap at 40% reduction
+
+            // Adjust special attack cooldown based on weapon level (up to 30% faster special attacks)
+            const specialAttackMultiplier = 1 - (weaponLevel * 0.08); // 8% decrease per weapon level
+            this.specialAttackCooldown = Math.max(this.baseSpecialAttackCooldown * specialAttackMultiplier, 
+                                                this.baseSpecialAttackCooldown * 0.7); // Cap at 30% reduction
+
+            // Adjust figure-8 pattern based on weapon level
+            if (this.pattern === 5) {
+                // Increase figure-8 amplitude and frequency for more erratic movement
+                this.figureEightAmplitude = 200 + (weaponLevel * 20); // Wider pattern
+                this.figureEightFrequency = 0.003 + (weaponLevel * 0.0005); // Faster oscillation
+            }
+        }
+    }
+
     fireCircularPattern() {
         // Number of bullets in the circular pattern (more than regular boss)
-        const bulletCount = 16;
+        let bulletCount = 16;
+
+        // Add more bullets based on player's weapon level
+        if (this.scene.player && this.scene.player.weaponLevel > 0) {
+            bulletCount += this.scene.player.weaponLevel * 3; // 3 more bullets per weapon level
+        }
 
         // Fire bullets in a circle
         for (let i = 0; i < bulletCount; i++) {

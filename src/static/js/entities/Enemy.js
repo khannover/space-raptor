@@ -13,23 +13,31 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Set up depth (z-index)
         this.setDepth(5);
 
-        // Set up health and speed based on type
+        // Base properties by type (will be adjusted based on player's weapon level)
         switch (this.type) {
             case 1: // Fast, weak enemy
-                this.health = 1;
-                this.speed = 150;
-                this.fireRate = 2000; // ms between shots
+                this.baseHealth = 1;
+                this.baseSpeed = 150;
+                this.baseFireRate = 2000; // ms between shots
                 break;
             case 2: // Slower, stronger enemy
-                this.health = 3;
-                this.speed = 100;
-                this.fireRate = 4500; // ms between shots
+                this.baseHealth = 3;
+                this.baseSpeed = 100;
+                this.baseFireRate = 4500; // ms between shots
                 break;
             default:
-                this.health = 1;
-                this.speed = 100;
-                this.fireRate = 2000;
+                this.baseHealth = 1;
+                this.baseSpeed = 100;
+                this.baseFireRate = 2000;
         }
+
+        // Set initial values
+        this.health = this.baseHealth;
+        this.speed = this.baseSpeed;
+        this.fireRate = this.baseFireRate;
+
+        // Adjust properties based on player's weapon level
+        this.adjustDifficultyBasedOnPlayerWeapon();
 
         // Set up movement pattern
         this.setupMovementPattern();
@@ -69,6 +77,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(delta) {
+        // Periodically check and adjust difficulty based on player's weapon level
+        // This ensures enemies adapt to player upgrades during gameplay
+        this.adjustDifficultyBasedOnPlayerWeapon();
+
         // Move based on pattern
         switch (this.pattern) {
             case 1: // Straight line
@@ -149,6 +161,36 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
             // Set rotation to face player (add 90 degrees because sprite is oriented upward by default)
             this.setRotation(angleToPlayer + Math.PI/2);
+        }
+    }
+
+    adjustDifficultyBasedOnPlayerWeapon() {
+        // Get player from scene
+        const player = this.scene.player;
+
+        // Only proceed if player exists
+        if (player) {
+            const weaponLevel = player.weaponLevel;
+
+            // Adjust speed based on weapon level (up to 50% faster at max weapon level)
+            const speedMultiplier = 1 + (weaponLevel * 0.15); // 15% increase per weapon level
+            this.speed = this.baseSpeed * speedMultiplier;
+
+            // Adjust fire rate based on weapon level (up to 60% faster shooting at max weapon level)
+            const fireRateMultiplier = 1 - (weaponLevel * 0.15); // 15% decrease per weapon level (faster shooting)
+            this.fireRate = Math.max(this.baseFireRate * fireRateMultiplier, this.baseFireRate * 0.4); // Cap at 60% reduction
+
+            // For type 2 and 3 enemies, also adjust pattern behavior to be more aggressive
+            if (this.type >= 2 && weaponLevel >= 2) {
+                // Increase sine wave and circular pattern intensity
+                if (this.pattern === 2) {
+                    this.sineAmplitude = 100 + (weaponLevel * 20); // Wider sine waves
+                    this.sineFrequency = 0.003 + (weaponLevel * 0.0005); // Faster oscillation
+                } else if (this.pattern === 3) {
+                    this.circleRadius = 50 + (weaponLevel * 10); // Wider circles
+                    this.circleSpeed = 0.002 + (weaponLevel * 0.0003); // Faster circles
+                }
+            }
         }
     }
 
