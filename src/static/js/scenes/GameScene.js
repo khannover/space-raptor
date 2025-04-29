@@ -530,6 +530,13 @@ class GameScene extends Phaser.Scene {
         bullet.destroy();
         enemy.damage();
 
+        // Play hit sound
+        try {
+            this.sound.play('hit', { volume: 0.10 });
+        } catch (error) {
+            console.warn('Hit sound not loaded properly:', error);
+        }
+
         // Increase score
         this.score += 10;
         this.scoreText.setText(`Score: ${this.score}`);
