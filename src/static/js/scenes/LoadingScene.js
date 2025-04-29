@@ -4,23 +4,25 @@ class LoadingScene extends Phaser.Scene {
     }
 
     preload() {
+        // Get the center of the screen
+        const centerX = this.cameras.main.width / 2;
+        const centerY = this.cameras.main.height / 2;
+
         // Display loading background
-        this.add.image(400, 300, 'loadingBackground');
+        this.add.image(centerX, centerY, 'loadingBackground');
 
         // Add loading text
-        this.loadingText = this.add.text(400, 250, 'Loading...', {
+        this.loadingText = this.add.text(centerX, centerY - 50, 'Loading...', {
             font: '24px Arial',
             fill: '#ffffff'
         }).setOrigin(0.5);
 
         // Create loading bar
-        this.loadingBarBg = this.add.image(400, 300, 'loadingBarBg');
-        this.loadingBar = this.add.image(201, 300, 'loadingBar');
+        this.loadingBarBg = this.add.image(centerX, centerY, 'loadingBarBg');
+        this.loadingBar = this.add.image(centerX - 199, centerY, 'loadingBar');
         this.loadingBar.setOrigin(0, 0.5);
 
         // Set up loading bar to track progress
-        const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
 
         // Display loading progress
         this.load.on('progress', (value) => {
