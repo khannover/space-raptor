@@ -177,8 +177,10 @@ class SuperBoss extends Boss {
         // Check if dead
         if (this.health <= 0) {
             // Play explosion sound
-            if (this.scene.sound.get('explosion')) {
+            try {
                 this.scene.sound.play('explosion', { volume: 0.7 });
+            } catch (error) {
+                console.warn('Explosion sound not loaded properly:', error);
             }
 
             // Create multiple explosions for a more dramatic effect

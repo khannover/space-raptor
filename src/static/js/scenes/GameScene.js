@@ -10,6 +10,7 @@ class GameScene extends Phaser.Scene {
         this.background = null;
         this.powerups = null;
         this.bosses = null;
+        this.gameMusic = null; // Reference to the game music
 
         // Game settings
         this.enemySpawnTime = 2000; // ms between enemy spawns
@@ -20,6 +21,7 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.isGameOver = false;
         this.superBossActive = false; // Flag to track if a super boss is active
+        this.musicPlaying = false; // Flag to track if music is playing
     }
 
     create() {
@@ -28,6 +30,11 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.nextBossSpawn = this.bossSpawnScore;
         this.superBossActive = false;
+
+        // Reset music state if it was previously playing and stopped
+        if (this.gameMusic && !this.musicPlaying) {
+            this.gameMusic = null;
+        }
 
         // Create scrolling background
         this.background = new Background(this, 0, 0, 'background');
@@ -62,11 +69,40 @@ class GameScene extends Phaser.Scene {
         // Add health bar
         this.createHealthBar();
 
-        // Start game music
-        if (this.sound.get('gameMusic')) {
-            this.sound.play('gameMusic', { loop: true, volume: 0.5 });
-        } else {
-            console.warn('Game music not loaded properly');
+        // Start game music (only if not already playing)
+        if (!this.musicPlaying) {
+            try {
+                // Check if the audio file exists and is loaded
+                if (this.sound.get('gameMusic')) {
+                    this.gameMusic = this.sound.get('gameMusic');
+                    this.gameMusic.play({ loop: true, volume: 0.5 });
+                    this.musicPlaying = true;
+                } else {
+                    console.warn('Game music not found in sound manager');
+                    // Try to load the music again if it's not found
+                    this.sound.add('gameMusic', '/static/assets/sounds/game-music.mp3');
+                    // Store the music instance for later reference
+                    this.gameMusic = this.sound.get('gameMusic');
+                    if (this.gameMusic) {
+                        this.gameMusic.play({ loop: true, volume: 0.5 });
+                        this.musicPlaying = true;
+                    }
+                }
+            } catch (error) {
+                console.warn('Game music not loaded properly:', error);
+                // Try an alternative approach
+                try {
+                    this.load.audio('gameMusic', '/static/assets/sounds/game-music.mp3');
+                    this.load.once('complete', () => {
+                        this.gameMusic = this.sound.add('gameMusic');
+                        this.gameMusic.play({ loop: true, volume: 0.5 });
+                        this.musicPlaying = true;
+                    });
+                    this.load.start();
+                } catch (innerError) {
+                    console.error('Failed to play game music after multiple attempts:', innerError);
+                }
+            }
         }
 
         // Set up input
@@ -445,8 +481,10 @@ class GameScene extends Phaser.Scene {
         });
 
         // Play warning sound (reuse explosion sound)
-        if (this.sound.get('explosion')) {
+        try {
             this.sound.play('explosion', { volume: isSuperBoss ? 0.5 : 0.3 });
+        } catch (error) {
+            console.warn('Explosion sound not loaded properly:', error);
         }
 
         // Delay the boss spawn to match the warning duration
@@ -624,10 +662,10 @@ class GameScene extends Phaser.Scene {
         this.isGameOver = true;
 
         // Play explosion sound
-        if (this.sound.get('explosion')) {
-            this.sound.play('explosion');
-        } else {
-            console.warn('Explosion sound not loaded properly');
+        try {
+            this.sound.play('explosion', { volume: 0.7 });
+        } catch (error) {
+            console.warn('Explosion sound not loaded properly:', error);
         }
 
         // Create main explosion at player position
@@ -692,6 +730,11 @@ class GameScene extends Phaser.Scene {
 
         // Transition to game over scene after delay
         this.time.delayedCall(2000, () => {
+            // Stop all sounds including music
+            if (this.gameMusic) {
+                this.gameMusic.stop();
+                this.musicPlaying = false; // Reset music playing flag
+            }
             this.sound.stopAll();
             this.scene.start('GameOverScene', { score: this.score });
         });

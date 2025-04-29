@@ -192,10 +192,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
 
             // Play sound
-            if (this.scene.sound.get('shoot')) {
+            try {
                 this.scene.sound.play('shoot', { volume: 0.5 });
-            } else {
-                console.warn('Shoot sound not loaded properly');
+            } catch (error) {
+                console.warn('Shoot sound not loaded properly:', error);
             }
 
             return bullets;
@@ -269,8 +269,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         explosion.setDepth(30);
 
         // Play explosion sound
-        if (this.scene.sound.get('explosion')) {
+        try {
             this.scene.sound.play('explosion', { volume: 0.7 });
+        } catch (error) {
+            console.warn('Explosion sound not loaded properly:', error);
         }
 
         // Fade out and destroy

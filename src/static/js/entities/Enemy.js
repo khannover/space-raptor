@@ -174,11 +174,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Check if dead
         if (this.health <= 0) {
             // Play explosion sound
-            if (this.scene && this.scene.sound && typeof this.scene.sound.get === 'function') {
-                if (this.scene.sound.get('explosion')) {
+            if (this.scene && this.scene.sound && typeof this.scene.sound.play === 'function') {
+                try {
                     this.scene.sound.play('explosion', { volume: 0.3 });
-                } else {
-                    console.warn('Explosion sound not loaded properly');
+                } catch (error) {
+                    console.warn('Explosion sound not loaded properly:', error);
                 }
             }
 
