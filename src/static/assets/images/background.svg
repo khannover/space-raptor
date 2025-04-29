@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536">
   <!-- Background gradient -->
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#0a0a2a;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#1a1a4a;stop-opacity:1" />
     </linearGradient>
-    
+
     <!-- Star pattern -->
     <pattern id="starPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
       <circle cx="10" cy="10" r="1" fill="white" opacity="0.8" />
@@ -22,29 +22,29 @@
       <circle cx="170" cy="190" r="1" fill="white" opacity="0.9" />
     </pattern>
   </defs>
-  
+
   <!-- Main background -->
-  <rect width="800" height="1200" fill="url(#bgGradient)" />
-  
+  <rect width="1024" height="1536" fill="url(#bgGradient)" />
+
   <!-- Stars -->
-  <rect width="800" height="1200" fill="url(#starPattern)" />
-  
+  <rect width="1024" height="1536" fill="url(#starPattern)" />
+
   <!-- Nebula 1 -->
-  <ellipse cx="200" cy="300" rx="300" ry="200" fill="#3498db" opacity="0.1" />
-  
+  <ellipse cx="256" cy="384" rx="384" ry="256" fill="#3498db" opacity="0.1" />
+
   <!-- Nebula 2 -->
-  <ellipse cx="600" cy="800" rx="250" ry="150" fill="#9b59b6" opacity="0.1" />
-  
+  <ellipse cx="768" cy="1024" rx="320" ry="192" fill="#9b59b6" opacity="0.1" />
+
   <!-- Distant planet -->
-  <circle cx="700" cy="200" r="50" fill="#2c3e50" opacity="0.7" />
-  <circle cx="700" cy="200" r="48" fill="#34495e" opacity="0.7" />
-  
+  <circle cx="896" cy="256" r="64" fill="#2c3e50" opacity="0.7" />
+  <circle cx="896" cy="256" r="61" fill="#34495e" opacity="0.7" />
+
   <!-- Asteroid field -->
   <g opacity="0.5">
-    <path d="M100 600 L120 580 L140 590 L130 610 L100 600" fill="#95a5a6" />
-    <path d="M150 650 L180 640 L190 660 L160 670 L150 650" fill="#95a5a6" />
-    <path d="M300 700 L320 680 L350 690 L340 720 L310 710 L300 700" fill="#95a5a6" />
-    <path d="M400 500 L420 490 L430 510 L410 520 L400 500" fill="#95a5a6" />
-    <path d="M500 900 L530 880 L550 900 L540 930 L510 920 L500 900" fill="#95a5a6" />
+    <path d="M128 768 L154 742 L179 755 L166 781 L128 768" fill="#95a5a6" />
+    <path d="M192 832 L230 819 L243 845 L205 858 L192 832" fill="#95a5a6" />
+    <path d="M384 896 L410 870 L448 883 L435 922 L397 909 L384 896" fill="#95a5a6" />
+    <path d="M512 640 L538 627 L551 653 L525 666 L512 640" fill="#95a5a6" />
+    <path d="M640 1152 L678 1126 L704 1152 L691 1190 L653 1178 L640 1152" fill="#95a5a6" />
   </g>
 </svg>
