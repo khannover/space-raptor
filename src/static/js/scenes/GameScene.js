@@ -12,6 +12,14 @@ class GameScene extends Phaser.Scene {
         this.bosses = null;
         this.gameMusic = null; // Reference to the game music
 
+        // Multiplayer state
+        this.otherPlayers = {}; // Object to store other player sprites
+        this.playerNames = {}; // Object to store player name text objects
+        this.isMultiplayer = false; // Flag to track if this is a multiplayer game
+        this.playerCount = 1; // Default to single player
+        this.isSessionMaster = false; // Flag to track if this player is the session master
+        this.sessionId = null; // Session ID for multiplayer games
+
         // Game settings
         this.enemySpawnTime = 2000; // ms between enemy spawns
         this.powerupSpawnTime = 10000; // ms between powerup spawns
@@ -22,6 +30,16 @@ class GameScene extends Phaser.Scene {
         this.isGameOver = false;
         this.superBossActive = false; // Flag to track if a super boss is active
         this.musicPlaying = false; // Flag to track if music is playing
+        this.menuActive = false; // Flag to track if a menu is currently displayed
+        this.menuContainer = null; // Container for menu elements
+        this.lastSyncTime = 0; // Time of last game state sync
+    }
+
+    init(data) {
+        // Check if this is a multiplayer game
+        this.isMultiplayer = data && data.multiplayer;
+        // Store session ID if it's a session-based multiplayer game
+        this.sessionId = data && data.sessionId;
     }
 
     create() {
@@ -72,6 +90,11 @@ class GameScene extends Phaser.Scene {
         // Add bomb slots UI
         this.createBombUI();
 
+        // Set up multiplayer if enabled
+        if (this.isMultiplayer) {
+            this.setupMultiplayer();
+        }
+
         // Start game music (only if not already playing)
         if (!this.musicPlaying) {
             try {
@@ -112,6 +135,11 @@ class GameScene extends Phaser.Scene {
         this.input.on('pointermove', (pointer) => {
             if (this.player && !this.isGameOver) {
                 this.player.setPosition(pointer.x, pointer.y);
+
+                // In multiplayer mode, send position updates to server
+                if (this.isMultiplayer && window.multiplayerManager) {
+                    this.sendPlayerPositionUpdate();
+                }
             }
         });
 
@@ -790,6 +818,48 @@ class GameScene extends Phaser.Scene {
         // Stop enemy spawner
         this.enemySpawner.remove();
 
+        // Stop powerup and boss spawners too
+        if (this.powerupSpawner) {
+            this.powerupSpawner.remove();
+        }
+        if (this.bossSpawner) {
+            this.bossSpawner.remove();
+        }
+
+        // Hide player sprite
+        this.player.setVisible(false);
+
+        // Display "Game Over" text
+        const gameOverText = this.add.text(
+            this.game.config.width / 2,
+            this.game.config.height / 2 - 50,
+            'GAME OVER',
+            {
+                fontSize: '48px',
+                fontStyle: 'bold',
+                fill: '#ff0000',
+                stroke: '#000000',
+                strokeThickness: 6
+            }
+        );
+        gameOverText.setOrigin(0.5);
+        gameOverText.setDepth(100);
+
+        // Add score text
+        const finalScoreText = this.add.text(
+            this.game.config.width / 2,
+            this.game.config.height / 2 + 20,
+            `Final Score: ${this.score}`,
+            {
+                fontSize: '32px',
+                fill: '#ffffff',
+                stroke: '#000000',
+                strokeThickness: 4
+            }
+        );
+        finalScoreText.setOrigin(0.5);
+        finalScoreText.setDepth(100);
+
         // Transition to game over scene after delay
         this.time.delayedCall(2000, () => {
             // Stop all sounds including music
@@ -801,4 +871,142 @@ class GameScene extends Phaser.Scene {
             this.scene.start('GameOverScene', { score: this.score });
         });
     }
+
+    // Handler for when a player uses a bomb
+    onPlayerBombUsed(x, y) {
+        // Create larger explosion effect
+        this.createExplosion(x, y, 3);
+
+        // Play bomb explosion sound (reuse explosion sound with higher volume)
+        try {
+            this.sound.play('explosion', { volume: 0.4 });
+        } catch (error) {
+            console.warn('Explosion sound not loaded properly:', error);
+        }
+
+        // Damage or destroy all enemies on screen
+        this.enemies.getChildren().forEach(enemy => {
+            enemy.destroy();
+
+            // Add score for each destroyed enemy
+            this.score += 5;
+        });
+
+        // Damage bosses significantly
+        this.bosses.getChildren().forEach(boss => {
+            // Deal significant damage to bosses (but don't instantly kill super bosses)
+            if (boss.isSuperBoss) {
+                boss.damage(5); // Deal 5 damage to super bosses
+            } else {
+                boss.damage(10); // Deal 10 damage to regular bosses
+            }
+        });
+
+        // Clear all enemy bullets
+        this.enemyBullets.getChildren().forEach(bullet => {
+            bullet.destroy();
+        });
+
+        // Update score display
+        this.scoreText.setText(`Score: ${this.score}`);
+
+        // Update bomb UI
+        this.updateBombUI();
+    }
+
+    // Handle player damage events
+    onPlayerDamaged() {
+        // Create camera shake effect
+        this.cameras.main.shake(200, 0.01);
+
+        // Update health bar
+        this.updateHealthBar();
+
+        // Screen flash effect (red flash indicates damage)
+        const flashEffect = this.add.rectangle(
+            this.game.config.width / 2,
+            this.game.config.height / 2,
+            this.game.config.width,
+            this.game.config.height,
+            0xff0000
+        );
+        flashEffect.setAlpha(0.3);
+        flashEffect.setDepth(100);
+
+        // Fade out flash effect
+        this.tweens.add({
+            targets: flashEffect,
+            alpha: 0,
+            duration: 100,
+            ease: 'Power1',
+            onComplete: () => {
+                flashEffect.destroy();
+            }
+        });
+
+        // Check if player is dead
+        if (this.player.health <= 0 && !this.isGameOver) {
+            this.gameOver();
+        }
+    }
+
+    // Add multiplayer player
+    addOtherPlayer(playerInfo) {
+        // Create sprite for other player
+        const otherPlayer = this.add.sprite(playerInfo.x, playerInfo.y, 'player');
+        otherPlayer.setScale(0.5);
+        otherPlayer.setAlpha(0.7); // Make other players slightly transparent
+        otherPlayer.setTint(0x00ffff); // Give other players a different color
+
+        // Store the player ID with the sprite
+        otherPlayer.playerId = playerInfo.playerId;
+
+        // Add player name text
+        const nameText = this.add.text(playerInfo.x, playerInfo.y - 20, playerInfo.name || 'Player', {
+            fontSize: '14px',
+            fill: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 2
+        });
+        nameText.setOrigin(0.5);
+        nameText.setDepth(10);
+
+        // Store references to other player and their name
+        this.otherPlayers[playerInfo.playerId] = otherPlayer;
+        this.playerNames[playerInfo.playerId] = nameText;
+    }
+
+    // Update other player's position
+    updateOtherPlayer(playerInfo) {
+        const otherPlayer = this.otherPlayers[playerInfo.playerId];
+        const nameText = this.playerNames[playerInfo.playerId];
+
+        if (otherPlayer && nameText) {
+            // Smoothly move other player to their new position
+            this.tweens.add({
+                targets: otherPlayer,
+                x: playerInfo.x,
+                y: playerInfo.y,
+                duration: 100,
+                ease: 'Linear'
+            });
+
+            // Update name text position
+            nameText.setPosition(playerInfo.x, playerInfo.y - 20);
+        }
+    }
+
+    // Remove other player
+    removeOtherPlayer(playerId) {
+        if (this.otherPlayers[playerId]) {
+            this.otherPlayers[playerId].destroy();
+            delete this.otherPlayers[playerId];
+        }
+
+        if (this.playerNames[playerId]) {
+            this.playerNames[playerId].destroy();
+            delete this.playerNames[playerId];
+        }
+    }
 }
+

@@ -251,11 +251,28 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 // Increase score
                 this.scene.score += 10;
             });
+        }
 
-            // Update score display
-            if (this.scene.scoreText) {
-                this.scene.scoreText.setText(`Score: ${this.scene.score}`);
-            }
+        // Handle bosses - instantly kill little bosses but not big bosses
+        if (this.scene.bosses) {
+            this.scene.bosses.getChildren().forEach(boss => {
+                // Check if it's a SuperBoss (big boss) or a regular Boss (little boss)
+                // SuperBoss has much higher health (baseHealth = 100) than regular Boss (baseHealth = 15)
+                if (boss.baseHealth >= 100) {
+                    // For SuperBoss (big boss), just apply damage once
+                    boss.damage();
+                } else {
+                    // For regular Boss (little boss), instantly kill it
+                    while (boss.active && boss.health > 0) {
+                        boss.damage();
+                    }
+                }
+            });
+        }
+
+        // Update score display
+        if (this.scene.scoreText) {
+            this.scene.scoreText.setText(`Score: ${this.scene.score}`);
         }
 
         // Update bomb UI if it exists

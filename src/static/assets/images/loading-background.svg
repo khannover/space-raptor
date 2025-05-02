@@ -12,12 +12,12 @@
 
   <!-- Game title -->
   <text x="512" y="192" font-family="Arial" font-size="48" font-weight="bold" fill="#e94560" text-anchor="middle">
-    RAPTOR: CALL OF THE SHADOWS
+    SPACE-RAPTOR: CALL OF THE ALIENS
   </text>
 
   <!-- Subtitle -->
   <text x="512" y="256" font-family="Arial" font-size="24" fill="#ffffff" text-anchor="middle">
-    Clone
+    Part I
   </text>
 
   <!-- Decorative elements -->

@@ -31,11 +31,360 @@
             font-size: 24px;
             text-align: center;
         }
+
+        /* Multiplayer UI */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .form-container {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .input-field {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #333;
+            border: 1px solid #555;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #0055aa;
+        }
+
+        .btn-red {
+            background-color: #cc3300;
+        }
+
+        .btn-red:hover {
+            background-color: #aa2200;
+        }
+
+        .btn-green {
+            background-color: #33aa33;
+        }
+
+        .btn-green:hover {
+            background-color: #228822;
+        }
+
+        .player-tag {
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            text-shadow: 1px 1px 2px black;
+            pointer-events: none;
+        }
+
+        /* Multiplayer health display */
+        .multiplayer-health-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 5px;
+            padding: 8px;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: left;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .player-health-entry {
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-health-bar {
+            height: 10px;
+            background-color: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100px;
+            position: relative;
+        }
+
+        .player-health-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .player-name {
+            font-size: 12px;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .player-health-text {
+            font-size: 10px;
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+
+        /* Session UI */
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+
+        .nav-tab.active {
+            background-color: #0066cc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Session lists */
+        .session-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            background-color: #262626;
+        }
+
+        .session-item {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-item:hover {
+            background-color: #333;
+        }
+
+        .session-name {
+            font-weight: bold;
+        }
+
+        .player-count {
+            color: #aaa;
+        }
+
+        /* Waiting room */
+        .waiting-room-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .player-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .player-list th, .player-list td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        .player-list th {
+            background-color: #333;
+        }
+
+        .ready-status {
+            color: #cc3300;
+        }
+
+        .ready-status.ready {
+            color: #33aa33;
+        }
+
+        .copy-link {
+            display: flex;
+            margin-bottom: 15px;
+            background-color: #333;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .copy-link input {
+            flex-grow: 1;
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 5px;
+        }
+
+        .copy-link button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .copy-link button:hover {
+            background-color: #0055aa;
+        }
+
+        .share-text {
+            margin-top: 10px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .waiting-room-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
         <div class="loading-text">Loading game...</div>
+
+        <!-- Main Menu Overlay -->
+        <div id="main-menu-overlay" class="overlay">
+            <div class="form-container">
+                <h1>Space Raptor</h1>
+                <div class="button-group">
+                    <button id="single-player-btn" class="btn">Single Player</button>
+                    <button id="multiplayer-btn" class="btn">Multiplayer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multiplayer Menu Overlay -->
+        <div id="multiplayer-overlay" class="overlay" style="display: none;">
+            <div class="form-container">
+                <h2>Multiplayer Mode</h2>
+
+                <!-- Tabs Navigation -->
+                <div class="nav-tabs">
+                    <div class="nav-tab active" data-tab="create">Create Session</div>
+                    <div class="nav-tab" data-tab="join">Join Session</div>
+                </div>
+
+                <!-- Create Session Tab -->
+                <div id="create-tab" class="tab-content active">
+                    <p>Create a new game session:</p>
+                    <input type="text" id="username-create-input" class="input-field" placeholder="Your Username" maxlength="15">
+                    <input type="text" id="session-name-input" class="input-field" placeholder="Session Name" maxlength="20">
+                    <button id="create-session-btn" class="btn">Create Session</button>
+                </div>
+
+                <!-- Join Session Tab -->
+                <div id="join-tab" class="tab-content">
+                    <p>Join an existing session:</p>
+                    <input type="text" id="username-join-input" class="input-field" placeholder="Your Username" maxlength="15">
+
+                    <p>Available Sessions:</p>
+                    <div id="session-list" class="session-list">
+                        <!-- Session list will be populated dynamically -->
+                        <div class="session-item">
+                            <span class="session-name">Loading sessions...</span>
+                        </div>
+                    </div>
+
+                    <p>Or join via link:</p>
+                    <input type="text" id="session-id-input" class="input-field" placeholder="Session ID">
+                    <button id="join-session-btn" class="btn">Join Session</button>
+                    <button id="refresh-sessions-btn" class="btn">Refresh List</button>
+                </div>
+
+                <button id="back-to-main-btn" class="btn btn-red" style="margin-top: 20px;">Back to Main Menu</button>
+            </div>
+        </div>
+
+        <!-- Waiting Room Overlay -->
+        <div id="waiting-room-overlay" class="overlay" style="display: none;">
+            <div class="form-container">
+                <h2 class="waiting-room-title">Waiting Room: <span id="session-name-display">Session Name</span></h2>
+
+                <div class="copy-link">
+                    <input type="text" id="session-link" readonly>
+                    <button id="copy-link-btn">Copy</button>
+                </div>
+                <div class="share-text">Share this link with friends to join your game session</div>
+
+                <h3>Players:</h3>
+                <table class="player-list" id="waiting-players-list">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Player list will be populated dynamically -->
+                    </tbody>
+                </table>
+
+                <div class="waiting-room-controls">
+                    <button id="leave-session-btn" class="btn btn-red">Leave Session</button>
+                    <button id="toggle-ready-btn" class="btn">I'm Ready</button>
+                    <button id="start-game-btn" class="btn btn-green" style="display: none;">Start Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Original Multiplayer Login Overlay (kept for compatibility) -->
+        <div id="old-multiplayer-overlay" class="overlay" style="display: none;">
+            <div class="form-container">
+                <h2>Multiplayer Mode</h2>
+                <p>Enter your username to join the battle:</p>
+                <input type="text" id="username-input" class="input-field" placeholder="Username" maxlength="15">
+                <button id="start-multiplayer-btn" class="btn">Join Game</button>
+            </div>
+        </div>
     </div>
 
     <!-- Phaser Library -->
@@ -60,7 +409,158 @@
     <!-- Game Configuration -->
     <script src="{{ url_for('static', path='js/config.js') }}"></script>
 
+    <!-- Multiplayer Support -->
+    <script src="{{ url_for('static', path='js/multiplayer.js') }}"></script>
+
+    <!-- Session Management -->
+    <script src="{{ url_for('static', path='js/session-manager.js') }}"></script>
+
     <!-- Main Game Script -->
     <script src="{{ url_for('static', path='js/game.js') }}"></script>
+
+    <script>
+        // Multiplayer UI handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main menu buttons
+            const singlePlayerBtn = document.getElementById('single-player-btn');
+            const multiplayerBtn = document.getElementById('multiplayer-btn');
+            const mainMenuOverlay = document.getElementById('main-menu-overlay');
+
+            // Multiplayer menu elements
+            const multiplayerOverlay = document.getElementById('multiplayer-overlay');
+            const oldMultiplayerOverlay = document.getElementById('old-multiplayer-overlay');
+            const backToMainBtn = document.getElementById('back-to-main-btn');
+
+            // Tab navigation
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            // Create session elements
+            const usernameCreateInput = document.getElementById('username-create-input');
+            const sessionNameInput = document.getElementById('session-name-input');
+            const createSessionBtn = document.getElementById('create-session-btn');
+
+            // Join session elements
+            const usernameJoinInput = document.getElementById('username-join-input');
+            const sessionList = document.getElementById('session-list');
+            const sessionIdInput = document.getElementById('session-id-input');
+            const joinSessionBtn = document.getElementById('join-session-btn');
+            const refreshSessionsBtn = document.getElementById('refresh-sessions-btn');
+
+            // Single player button starts the game directly
+            singlePlayerBtn.addEventListener('click', function() {
+                mainMenuOverlay.style.display = 'none';
+                // Start the game in single player mode
+                if (window.game) {
+                    window.game.scene.start('GameScene', { multiplayer: false });
+                }
+            });
+
+            // Multiplayer button shows the multiplayer overlay
+            multiplayerBtn.addEventListener('click', function() {
+                mainMenuOverlay.style.display = 'none';
+                multiplayerOverlay.style.display = 'flex';
+                // Load available sessions
+                window.sessionManager.loadSessions();
+            });
+
+            // Back button returns to main menu
+            backToMainBtn.addEventListener('click', function() {
+                multiplayerOverlay.style.display = 'none';
+                mainMenuOverlay.style.display = 'flex';
+            });
+
+            // Tab switching
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    // Update active tab
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Show corresponding content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Create session button
+            createSessionBtn.addEventListener('click', function() {
+                const username = usernameCreateInput.value.trim();
+                const sessionName = sessionNameInput.value.trim() || `${username}'s Game`;
+
+                if (username.length < 3) {
+                    alert('Please enter a username with at least 3 characters');
+                    return;
+                }
+
+                window.sessionManager.createSession(sessionName, username);
+            });
+
+            // Refresh sessions button
+            refreshSessionsBtn.addEventListener('click', function() {
+                window.sessionManager.loadSessions();
+            });
+
+            // Join session button
+            joinSessionBtn.addEventListener('click', function() {
+                const username = usernameJoinInput.value.trim();
+                const sessionId = sessionIdInput.value.trim();
+
+                if (username.length < 3) {
+                    alert('Please enter a username with at least 3 characters');
+                    return;
+                }
+
+                if (!sessionId) {
+                    alert('Please enter a session ID or select a session from the list');
+                    return;
+                }
+
+                window.sessionManager.joinSession(sessionId, username);
+            });
+
+            // Original multiplayer code (kept for compatibility)
+            const startMultiplayerBtn = document.getElementById('start-multiplayer-btn');
+            const usernameInput = document.getElementById('username-input');
+
+            // Add "Multiplayer" button to start scene
+            window.showMultiplayerOverlay = function() {
+                mainMenuOverlay.style.display = 'flex';
+            };
+
+            // Handle legacy multiplayer start button
+            startMultiplayerBtn.addEventListener('click', async function() {
+                const username = usernameInput.value.trim();
+                if (username.length < 3) {
+                    alert('Please enter a username with at least 3 characters');
+                    return;
+                }
+
+                // Initialize multiplayer
+                const success = await window.multiplayerManager.init(username);
+                if (success) {
+                    oldMultiplayerOverlay.style.display = 'none';
+
+                    // Check if game is already started, otherwise start it
+                    if (window.game && window.game.scene.isActive('StartScene')) {
+                        window.game.scene.start('GameScene', { multiplayer: true });
+                    }
+                } else {
+                    alert('Failed to connect to multiplayer server');
+                }
+            });
+
+            // Initialize session manager if it exists
+            if (window.sessionManager) {
+                window.sessionManager.init();
+            }
+        });
+    </script>
 </body>
 </html>

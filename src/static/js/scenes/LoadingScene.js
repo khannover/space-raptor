@@ -9,7 +9,10 @@ class LoadingScene extends Phaser.Scene {
         const centerY = this.cameras.main.height / 2;
 
         // Display loading background
-        this.add.image(centerX, centerY, 'loadingBackground');
+        const loadingBg = this.add.image(0, 0, 'loadingBackground');
+        loadingBg.setOrigin(0, 0);
+        loadingBg.displayWidth = this.game.config.width;
+        loadingBg.displayHeight = this.game.config.height;
 
         // Add loading text
         this.loadingText = this.add.text(centerX, centerY - 50, 'Loading...', {
@@ -23,6 +26,8 @@ class LoadingScene extends Phaser.Scene {
         this.loadingBar.setOrigin(0, 0.5);
 
         // Set up loading bar to track progress
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
 
         // Display loading progress
         this.load.on('progress', (value) => {
